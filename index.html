@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html{color-scheme:light}[hidden]{display:none!important}</style>
+<title>Quiz Storia della Marina</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  /* Concept: plancia di comando. Carta nautica chiara, inchiostro blu notte, ottone per ciò che richiede un'azione. */
+  --paper:#EDF1F3; --surface:#FFFFFF; --ink:#0B2036; --ink-soft:#4A6076; --line:#CBD5DC;
+  --band-bg:#0F2B46; --band-fg:#EAF1F6; --band-dim:#A3B8CA; --band-accent:#E2B04D; --band-line:rgba(234,241,246,.38);
+  --brass:#8A5E0E; --brass-fill:#D9A441; --on-brass:#0B2036;
+  --ok:#16714A; --ok-bg:#DDF1E6; --bad:#B3261E; --bad-bg:#FADFDC;
+  --sel-bg:#0F2B46; --sel-fg:#EAF1F6; --focus:#1D5FA8;
+  --f-display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --f-body:'Atkinson Hyperlegible','Segoe UI',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#07131F; --surface:#0D2133; --ink:#E6EEF4; --ink-soft:#9DB2C4; --line:#223B52;
+    --band-bg:#0A2036; --brass:#E2B04D;
+    --ok:#5ED19B; --ok-bg:#12382A; --bad:#FF8A80; --bad-bg:#431B19;
+    --sel-bg:#E6EEF4; --sel-fg:#0B2036; --focus:#7DB7F2; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#07131F; --surface:#0D2133; --ink:#E6EEF4; --ink-soft:#9DB2C4; --line:#223B52;
+  --band-bg:#0A2036; --brass:#E2B04D;
+  --ok:#5ED19B; --ok-bg:#12382A; --bad:#FF8A80; --bad-bg:#431B19;
+  --sel-bg:#E6EEF4; --sel-fg:#0B2036; --focus:#7DB7F2; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{width:100%;max-width:40rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Fascia di bordo */
+.band{background:var(--band-bg);color:var(--band-fg)}
+.band-in{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.75rem}
+.brand{display:flex;align-items:center;gap:.5rem;font:600 1.0625rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;min-width:0}
+.brand svg{flex:none;color:var(--band-accent)}
+.band-tag{font:500 .75rem/1 var(--f-mono);color:var(--band-dim);letter-spacing:.04em;white-space:nowrap}
+.band-btn{background:transparent;border:1px solid var(--band-line);color:var(--band-fg);border-radius:4px;min-height:2.5rem;padding:.35rem .8rem;font:600 .9375rem/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.band-btn.arm{border-color:var(--band-accent);color:var(--band-accent)}
+
+/* Home */
+.hero{background:var(--band-bg);color:var(--band-fg)}
+.hero-in{padding-block:1.25rem 1.75rem}
+.eyebrow{margin:0 0 .5rem;font:600 .875rem/1 var(--f-display);letter-spacing:.16em;text-transform:uppercase;color:var(--band-accent)}
+h1{margin:0;font:700 clamp(2.9rem,14vw,4.6rem)/.92 var(--f-display);text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.lead{margin:1rem 0 0;color:var(--band-dim);max-width:34ch}
+.ticks{height:14px;background:
+  repeating-linear-gradient(90deg,var(--band-line) 0 1px,transparent 1px 10px) left bottom/100% 6px no-repeat,
+  repeating-linear-gradient(90deg,var(--band-line) 0 1px,transparent 1px 50px) left bottom/100% 14px no-repeat}
+.panel{display:grid;gap:.75rem;padding-block:1.5rem 3rem}
+.label{margin:.5rem 0 0;font:600 .8125rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));gap:.5rem}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.chip{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;min-width:0;padding:.65rem .75rem;background:var(--surface);border:1.5px solid var(--line);border-radius:6px;text-align:left}
+.chip b{font:600 1.0625rem/1.1 var(--f-display);letter-spacing:.02em;text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
+.chip small{font:400 .75rem/1.2 var(--f-mono);color:var(--ink-soft)}
+.seg .chip{min-height:3.25rem;justify-content:center}
+.chip[aria-pressed="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+.chip[aria-pressed="true"] small{color:inherit;opacity:.8}
+.hint{margin:0;color:var(--ink-soft);font-size:.9375rem;max-width:60ch}
+.btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;min-height:3.25rem;padding:.6rem 1rem;border-radius:6px;border:1.5px solid transparent;font:700 1.1875rem/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.btn.primary{background:var(--brass-fill);color:var(--on-brass)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent;border-color:var(--ink-soft);color:var(--ink)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.pill{font:500 .8125rem/1 var(--f-mono);background:var(--bad-bg);color:var(--bad);padding:.25rem .5rem;border-radius:99px;letter-spacing:0}
+.prog{display:grid;gap:.5rem;margin-top:1rem;padding-top:1.25rem;border-top:1px solid var(--line)}
+.bar{height:.5rem;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.prog-row{display:flex;justify-content:space-between;gap:1rem;font-size:.9375rem;color:var(--ink-soft)}
+.prog-row b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-top:.5rem}
+.stat{padding:.6rem .75rem;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.stat b{display:block;font:500 1.375rem/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
+.stat span{font:600 .75rem/1 var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.link{justify-self:start;background:none;border:0;padding:.5rem 0;color:var(--ink-soft);text-decoration:underline;font-size:.9375rem}
+.link.arm{color:var(--bad)}
+
+/* Quiz */
+.quiz{display:grid;gap:1.1rem;padding-block:1.25rem 3rem}
+.qmeta{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+.count{font:400 .9375rem/1 var(--f-mono);color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.count b{font-weight:500;color:var(--ink);font-size:1.25rem}
+.tag{font:600 .8125rem/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.strip{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:3px;align-items:end;height:1rem}
+.cell{display:block;height:.5rem;background:var(--line);border-radius:1px}
+.cell.ans{background:var(--ink-soft)}
+.cell.ok{background:var(--ok)}
+.cell.bad{background:var(--bad)}
+.cell.cur{height:1rem}
+.cell.cur:not(.ok):not(.bad):not(.ans){background:var(--brass-fill)}
+.q{margin:.25rem 0 0;font:700 1.375rem/1.3 var(--f-body);max-width:34rem;text-wrap:pretty}
+.q:focus{outline:none}
+.opts{display:grid;gap:.6rem}
+.opt{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:.75rem;align-items:center;width:100%;min-height:3.5rem;padding:.7rem .8rem;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:6px;font-size:1.0625rem;line-height:1.35}
+.opt .key{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);font:500 .9375rem/1 var(--f-mono)}
+.opt .txt{min-width:0;overflow-wrap:anywhere}
+.opt .mark{font:600 .8125rem/1 var(--f-display);letter-spacing:.12em;text-transform:uppercase}
+.opt.sel{border-color:var(--brass)}
+.opt.sel .key{background:var(--brass-fill);border-color:var(--brass-fill);color:var(--on-brass)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.ok .key{background:var(--ok);border-color:var(--ok);color:var(--ok-bg)}
+.opt.ok .mark{color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.bad .key{background:var(--bad);border-color:var(--bad);color:var(--bad-bg)}
+.opt.bad .mark{color:var(--bad)}
+.opt.dim{opacity:.62}
+.fb{display:flex;flex-wrap:wrap;gap:.25rem .75rem;align-items:baseline;padding:.75rem .9rem;border-radius:6px;border-left:4px solid}
+.fb strong{font:700 1.125rem/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.fb.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.fb.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.fb span{color:var(--ink)}
+.actions{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.6rem}
+.actions .btn{width:auto;min-width:0}
+.actions .btn:only-child{grid-column:1/-1}
+
+/* Risultato */
+.result{display:grid;gap:1.25rem;padding-block:1.5rem 3rem}
+.score{display:grid;gap:.25rem}
+.big{margin:0;font:700 clamp(4.5rem,24vw,7rem)/.9 var(--f-display);font-variant-numeric:tabular-nums}
+.big span{color:var(--ink-soft);font-size:.55em;margin-left:.1em}
+.pct{margin:0;font:500 1rem/1.3 var(--f-mono);color:var(--ink-soft)}
+.verdict{margin:.5rem 0 0;font-size:1.125rem;font-weight:700;max-width:30rem}
+.result .btn{margin:0}
+.rev-h{margin:.5rem 0 0;font:700 1.5rem/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase}
+.revs{list-style:none;margin:0;padding:0;display:grid;gap:.75rem}
+.rev{padding:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:grid;gap:.5rem}
+.rev p{margin:0}
+.rev-q{font-weight:700}
+.rev-a{display:grid;gap:.1rem;padding:.5rem .65rem;border-radius:4px;border-left:4px solid;overflow-wrap:anywhere}
+.rev-a span{font:600 .75rem/1.2 var(--f-display);letter-spacing:.12em;text-transform:uppercase}
+.rev-a.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.rev-a.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.rev-a b{color:var(--ink);font-weight:400}
+.rev-n{font:400 .75rem/1.2 var(--f-mono);color:var(--ink-soft)}
+.clean{padding:1rem;background:var(--ok-bg);color:var(--ok);border-radius:6px;font-weight:700}
+.btns{display:grid;gap:.6rem}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.chip,.btn,.cell{transition:background-color .12s,border-color .12s}
+}
+</style>
+
+</head>
+<body>
+<div id="app"><div class="wrap" style="padding-block:2rem"><h1 style="font-size:2.4rem;color:var(--ink)">Storia della Marina</h1><p class="hint" id="boot">Caricamento del simulatore&hellip;</p><noscript><p class="hint"><b>Gli script sono bloccati.</b> Questo quiz ha bisogno di JavaScript. Salva il file e aprilo con Chrome o Safari, non dall'anteprima di WhatsApp, della posta o di un'app.</p></noscript></div></div>
+<script>setTimeout(function(){var b=document.getElementById('boot');if(b)b.innerHTML='<b>Il simulatore non si avvia qui.</b> Salva il file e aprilo con Chrome o Safari, non dall\'anteprima di WhatsApp, della posta o di un\'app.';},2500);</script>
+
+<script>
+(function(){
+'use strict';
+
+/* n = numero della domanda nel PDF, lv = livello (1 Normale, 2 Intermedio, 3 Pro) */
+const RAW = [
+[1,1,"In quale anno entrò in servizio il veliero Cristoforo Colombo?","1928",["1939","1931","1936"]],
+[2,1,"In quale anno si combatté la battaglia di Punta Stilo?","1940",["1943","1942","1945"]],
+[3,1,"Chi tra questi eroi della Decima MAS morì durante il forzamento di Malta?",["Teseo Tesei","Vittorio Moccagatta","Giorgio Giobbe"],["Licio Visintini","Roberto Frassetto","Luigi Durand de la Penne","Junio Valerio Borghese","Elios Toschi"]],
+[4,1,"Quale veliero venne costruito prima del Vespucci?","Il Cristoforo Colombo",["Il Tassoni","Il Gorizia","Il Littorio"]],
+[5,1,"Quale avvenimento è del 1940?","Notte di Taranto",["Bombardamento su Genova","Scontro di Capo Bon","Affondamento della Roma"]],
+[6,1,"Quale tra questi contribuì alla progettazione del maiale?","Toschi",["Del Cima","Rotundi","Rossetti"]],
+[7,1,"Quale ammiraglio subentrò a Cavagnari nel 1940?","Riccardi",["Iachino","Campioni","Bergamini"]],
+[8,1,"Quale tra queste navi affondò nella notte di Matapan?","Fiume",["Roma","Lupo","Sagittario"]],
+[9,1,"Quale nave venne affondata dalla mignatta di Rossetti e Paolucci?","Corazzata Viribus Unitis",["Corazzata Tegetthoff","Corazzata Prinz Eugen","Corazzata Santo Stefano"]],
+[10,1,"In quale anno fu inaugurata la Regia Accademia Navale di Livorno?","1881",["1931","1883","1902","1865"]],
+[11,1,"Quale ufficiale operò sul MAS durante la Grande Guerra?","Aonzo",["Acton","Cagni","Cappellini"]],
+[12,1,"Quale ufficiale guidò l'impresa di Premuda?","Luigi Rizzo",["Primo Longobardo","Raffaele Rossetti","Carlo Margottini"]],
+[13,1,"Chi firmò l'armistizio di Cassibile per l'Italia (3 settembre 1943)?","Il generale Castellano",["Ambrosio","Zanussi","Cavallero"]],
+[14,1,"Quale ammiraglio guidò la battaglia di Pantelleria nel 1942?","Alberto Da Zara",["Romeo Oliva","Paolo Thaon di Revel","Enrico Baroni"]],
+[15,1,"Quale tra questi sommergibili fu usato dagli incursori come mezzo avvicinatore?",["Scirè","Iride","Gondar"],["Malaspina","Bagnolini","Tazzoli","Calvi"]],
+[17,1,"Quando nasce la Regia Aeronautica?","1923",["1915","1919","1927"]],
+[18,1,"In quale anno si combatté la battaglia di Lissa?","1866",["1859","1861","1870"]],
+[19,1,"Dove fu fondata la Real Marina del Regno sabaudo?","La Maddalena",["Taranto","Venezia","Livorno"]],
+[20,1,"Chi fu l'ideatore della mignatta?","Rossetti",["Paolucci","Rizzo","Aonzo"]],
+[21,1,"In quale anno venne eretto il monumento al Milite Ignoto?","1921",["1915","1918","1925"]],
+[22,1,"Come si chiamava il primo aviatore italiano?","Calderara",["Cartosio","Guidoni","De Pinedo"]],
+[23,1,"Come si chiamava il comandante del famoso MAS 21?","Giuseppe Aonzo",["Luigi Rizzo","Costanzo Ciano","Gabriele D'Annunzio"]],
+[24,1,"Come si chiamava il comandante del famoso MAS 15?","Luigi Rizzo",["Giuseppe Aonzo","Raffaele Rossetti","Raffaele Paolucci"]],
+[25,1,"Contro quale impero ci scontrammo alla vigilia della Grande Guerra, nel 1911-12?","Impero turco-ottomano",["Impero austro-ungarico","Impero tedesco","Impero russo"]],
+[26,1,"Chi fondò la Reale Marina del Regno di Sardegna?","Des Geneys",["Benedetto Brin","Cavour","Persano"]],
+[27,1,"In quale data l'Italia entrò nella Grande Guerra?","24 maggio 1915",["28 luglio 1914","24 maggio 1916","4 novembre 1918"]],
+[28,1,"Quali MAS parteciparono all'impresa di Premuda?","MAS 15 e MAS 21",["MAS 9 e MAS 13","MAS 94, 95 e 96","MAS 5 e MAS 7"]],
+[29,1,"Quale accordo fu firmato nel 1943?","Armistizio Italia - forze alleate anglo-americane",["Patto d'Acciaio","Trattato di Londra","Patto Tripartito"]],
+[30,1,"Quale istituto è stato inaugurato nel 1947?","Mariscuola Taranto",["Accademia Navale di Livorno","Istituto Idrografico di Genova","Accademia Aeronautica di Pozzuoli"]],
+[31,1,"In quale anno avvenne il bombardamento aeronavale noto come Notte di Taranto?","1940",["1939","1941","1942"]],
+[32,1,"Chi tra questi valorosi prese parte al forzamento di Alessandria (1941)?",["Luigi Durand de la Penne","Mario Marino","Vincenzo Martellotta","Spartaco Schergat","Gino Birindelli","Licio Visintini"],["Teseo Tesei","Luigi Faggioni","Salvatore Todaro","Carlo Fecia di Cossato","Primo Longobardo"]],
+[33,1,"Quali operatori affondarono la Viribus Unitis con la mignatta?","Paolucci e Rossetti",["Rizzo e Aonzo","Ciano e D'Annunzio","Longobardo e Todaro","De la Penne e Bianchi","Tesei e Toschi"]],
+[34,1,"Quando cadde il fascismo?","25 luglio 1943",["8 settembre 1943","28 ottobre 1922","10 giugno 1940","14 luglio 1942","10 luglio 1943"]],
+[35,1,"In quale anno fu combattuta la battaglia di Mezzo Giugno?","1942",["1940","1941","1943"]],
+[36,1,"In che anno nacquero le regie capitanerie di porto?","1865",["1861","1872","1881"]],
+[37,1,"In quale anno avvenne lo scontro di Capo Matapan?","1941",["1940","1942","1943"]],
+[38,1,"Chi tra questi non è stato decorato con la Medaglia d'oro al valor militare?","Magnaghi",["Luigi Rizzo","Teseo Tesei","Luigi Durand de la Penne"]],
+[39,1,"In che anno fu fondato l'Istituto Idrografico di Genova?","1872",["1861","1865","1881"]],
+[40,1,"Chi condusse la battaglia di Matapan?","Iachino",["Campioni","Cattaneo","Riccardi"]],
+[41,1,"Con che cosa fu bombardata Taranto?","Aerosiluranti",["Bombardieri pesanti","Cannoni navali a lunga gittata","Mezzi d'assalto subacquei"]],
+[42,1,"Chi comandava la flotta inglese nel Mediterraneo nella seconda guerra mondiale?","Cunningham",["Montgomery","Wavell","Auchinleck"]],
+[43,1,"Durante quale scontro furono affondati i cacciatorpediniere Alfieri e Carducci?","Capo Matapan",["Notte di Taranto","Battaglia di Capo Teulada","Battaglia di Mezzo Agosto","Battaglia di Capo Spada","Battaglia di Mezzo Giugno"]],
+[47,1,"In quale anno entrò in servizio il Vespucci?","1931",["1928","1930","1939"]],
+[48,1,"Quando fu affondata la corazzata Roma?","9 settembre 1943",["8 settembre 1943","3 settembre 1943","10 aprile 1943"]],
+[49,1,"In quali anni Des Geneys rifonda la Marina Sarda?","1815-1830",["1796-1810","1830-1848","1848-1861"]],
+[51,1,"Quando perdemmo la corazzata Conte di Cavour?","Durante il raid della Notte di Taranto",["Durante la battaglia di Capo Matapan","Durante la battaglia di Mezzo Giugno","Durante il bombardamento di La Maddalena","Durante la battaglia di Punta Stilo","Durante la famosa Notte del Lupo"]],
+[52,1,"A chi è intitolata la Mariscuola La Maddalena?","Domenico Bastianini",["Luigi Rizzo","Carlo Mirabello","Paolo Thaon di Revel"]],
+[53,1,"Chi progettò le prime corazzate?","Benedetto Brin",["Giacinto Pullino","Giovanni Battista Magnaghi","Raffaele Rossetti"]],
+[54,1,"Quale era il nome del primo sommergibile costruito in Italia?","Delfino",["Scirè","Iride","Tazzoli"]],
+[55,1,"Da chi fu ideato il primo sommergibile Delfino?","Giacinto Pullino",["Benedetto Brin","Domenico Cavagnari","Raffaele Rossetti"]],
+[56,1,"In che anno è stato varato il sommergibile Giacinto Pullino?","1892",["1882","1898","1905"]],
+[57,1,"Chi nel 1912 si distinse nella guerra italo-turca forzando i Dardanelli?","Capitano di vascello Enrico Millo",["Paolo Thaon di Revel","Luigi Rizzo","Costanzo Ciano"]],
+[58,1,"In che anno avvenne il passaggio delle capitanerie di porto nel corpo della Marina Militare?","1923",["1915","1919","1927"]],
+[59,1,"Quando si costituisce il Regno d'Italia?","17 marzo 1861",["20 settembre 1870","4 marzo 1848","2 giugno 1946"]],
+[60,1,"A chi si deve la fondazione, nel 1881, dell'Accademia Navale di Livorno?","Benedetto Brin",["Giacinto Pullino","Domenico Cavagnari","Paolo Thaon di Revel"]],
+
+[62,2,"In quale anno fu affondata da Rizzo la corazzata Wien?","1917",["1916","1918","1915"]],
+[63,2,"Quale ammiraglio ricoprì la carica di ministro della Marina?","De Courten",["Iachino","Campioni","Bergamini"]],
+[64,2,"In quale anno avvenne lo sbarco alleato in Sicilia?","1943",["1941","1945","1940"]],
+[65,2,"Quale mezzo usarono per forzare la baia di Suda?","Il barchino esplosivo",["La mignatta","Il maiale","Il MAS"]],
+[66,2,"Chi comandava la Prima Squadra navale allo scoppio della guerra nel 1940?","Campioni",["Cattaneo","De Cristofaro","Maugeri"]],
+[67,2,"Quale operatore faceva parte dei nuotatori gamma?","Ferraro",["Marcoglia","Cabrini","Capriotti"]],
+[68,2,"Quale ammiraglio comandava la flotta italiana a Lissa nel 1866?","Persano",["Ubaldini","Vacca","Albini"]],
+[69,2,"Quali sommergibilisti operarono valorosamente nell'Oceano Atlantico?","Fecia di Cossato e Salvatore Todaro",["Pelosi e Bezzi","Pecori e Frassetto","Borghese e Zelich"]],
+[70,2,"In quale anno fu combattuta la battaglia di Mezzo Agosto?","1942",["1940","1945","1918"]],
+[73,2,"In quale anno il poeta Fogazzaro scrisse la Preghiera del marinaio?","1901",["1895","1908","1915"]],
+[74,2,"Chi comandava la flotta austriaca a Lissa?","Tegetthoff",["Persano","Albini","Vacca"]],
+[76,2,"Chi fu il primo ministro della Marina dopo l'unificazione?","Cavour",["Garibaldi","Benedetto Brin","Rattazzi"]],
+[77,2,"Luigi Rizzo affondò la Santo Stefano e quale altra nave?","Corazzata Wien",["Corazzata Viribus Unitis","Corazzata Tegetthoff","Corazzata Prinz Eugen"]],
+[79,2,"Chi scrisse la Preghiera del marinaio?","Antonio Fogazzaro",["Giosuè Carducci","Gabriele D'Annunzio","Giovanni Pascoli"]],
+[80,2,"Chi era il comandante delle forze navali da battaglia nel settembre 1943?","Bergamini",["Iachino","Campioni","Riccardi"]],
+[84,2,"Chi fu il successore di Campioni al comando della flotta?","Iachino",["Bergamini","Riccardi","De Courten","Sansonetti"]],
+[85,2,"Chi sostituì Iachino al comando della flotta?","Bergamini",["Campioni","Riccardi","De Courten","Aimone di Savoia"]],
+[87,2,"Nel dopoguerra, su quale nave fu installato il primo sistema lanciamissili?","Garibaldi",["Amerigo Vespucci","Conte di Cavour","Zara","Vittorio Veneto","Montecuccoli","Ardito"]],
+
+[88,3,"Come si chiamava la prima corazzata italiana?","Duilio",["Doria","Cavour","Garibaldi"]],
+[89,3,"A quale operazione partecipò il vate Gabriele D'Annunzio?","Impresa di Buccari",["Impresa di Premuda","Impresa di Pola","Impresa di Trieste"]],
+[90,3,"Quale tra questi personaggi era un medico militare?","Raffaele Paolucci",["Raffaele Rossetti","Augusto Riboty","Carlo Mirabello"]],
+[91,3,"Chi era il Capo di Stato Maggiore Generale nel 1939-40?","Badoglio",["Graziani","Ambrosio","Balbo"]],
+[92,3,"Quale nave venne varata durante il periodo fascista?","Incrociatore pesante Zara",["Corazzata Dante Alighieri","Corazzata Leonardo da Vinci","Corazzata Brin"]],
+[93,3,"Quale ammiraglio assunse l'incarico di CINCNAV nel 1952?","Massimo Girosi",["Giuseppe Rosselli Lorenzini","Eugenio Henke","Emilio Ferreri"]],
+[94,3,"Quale forza navale era stanziata a Gibilterra al comando di Somerville?","Forza H",["Forza B","Forza K","Forza Q"]],
+[95,3,"Chi era Primo Lord del Mare della Royal Navy all'inizio della guerra?","Dudley Pound",["Andrew Cunningham","James Somerville","Bernard Montgomery"]],
+[96,3,"Quale operazione è considerata la prima nella guerra psicologica?","La beffa di Buccari",["Lo sbarco a Fiume","Il forzamento di Fasana","L'impresa di Cortellazzo"]],
+[97,3,"In quale anno fu affondato l'incrociatore Trieste?","1943",["1940","1941","1942"]],
+[98,3,"Quale tra queste navi italiane fu affondata durante la Grande Guerra?",["Amalfi","Regina Margherita"],["Bolzano","Vespucci","Re d'Italia","Incrociatore Dandolo","Corazzata Duilio","Corazzata Lepanto"]],
+[99,3,"Chi fu il primo Capo di Stato Maggiore della Regia Marina?","Ferdinando Acton",["Giovanni Battista Magnaghi","Raffaele de Courten","Domenico Cavagnari"]],
+[100,3,"Da quale portaerei partì l'attacco durante la Notte di Taranto?","Illustrious",["Eagle","Formidable","Ark Royal"]],
+[102,3,"Quale avvenimento è del 1941?","Bombardamento su Genova",["Notte di Taranto","Scontro di Capo Teulada","Battaglia di Mezzo Agosto"]],
+[103,3,"Chi tra questi non era un sommergibilista?","Gino Birindelli",["Carlo Fecia di Cossato","Salvatore Todaro","Primo Longobardo"]],
+[104,3,"Durante la battaglia di Mezzo Giugno fu affondato l'incrociatore...","Trento",["Gorizia","Fiume","Duca degli Abruzzi"]],
+[105,3,"Quale ufficiale guidò l'incursione nella baia di Suda nel 1941?","Luigi Faggioni",["Gino Birindelli","Paolo Alcisi","Agostino Straulino"]],
+[106,3,"In quale anno subimmo la disfatta di Caporetto?","1917",["1915","1916","1918"]],
+[107,3,"Quale evento segna il passaggio dalla storia moderna a quella contemporanea?","La Rivoluzione francese",["La scoperta dell'America","La caduta dell'Impero romano d'Occidente","La prima guerra mondiale"]],
+[108,3,"Quale avvenimento si svolse nel febbraio del 1918?","La beffa di Buccari",["L'impresa di Premuda","L'affondamento della Wien","Il forzamento di Pola"]],
+[109,3,"Quale tra questi ammiragli perse la vita nella notte di Matapan?","Carlo Cattaneo",["Angelo Iachino","Arturo Riccardi","Carlo Bergamini"]],
+[110,3,"In che anno morì il TV Nazario Sauro?","1916",["1915","1917","1918"]],
+[111,3,"Quale ufficiale venne sostituito da Ugo Cavallero?","Pietro Badoglio",["Rodolfo Graziani","Italo Balbo","Vittorio Ambrosio"]],
+[113,3,"In quale data avvenne il bombardamento di La Maddalena?","10 aprile 1943",["10 giugno 1940","11 novembre 1940","9 settembre 1943"]],
+
+/* Seconda tornata: storia_della_marina.pdf */
+[114,1,"Quale valoroso ufficiale comandava la R.N. Palestro nella battaglia di Lissa?","Alfredo Cappellini",["Augusto Riboty", "Simone di Saint Bon", "Emilio Faà di Bruno"]],
+[115,1,"Su quale unità era imbarcato Von Tegetthoff a Lissa?","Ferdinand Max",["Prinz Eugen", "Viribus Unitis", "Von Bismarck"]],
+[116,1,"Quale tra queste navi venne varata a seguito del Programma navale 1958?","Caccialanciamissili Impavido",["Incrociatore San Marco", "Incrociatore Garibaldi", "Cacciatorpediniere Artigliere"]],
+[117,1,"Come è avvenuto l'affondamento del cacciatorpediniere Da Noli il 9 settembre 1943?","Saltato sulle mine",["Bombardato dai tedeschi", "Silurato da un sommergibile", "Speronato da un incrociatore"]],
+[118,1,"Quale famoso ufficiale prese parte insieme a Goiran all'episodio di Fasana?","Cavagnari",["Riccardi", "Iachino", "Campioni"]],
+[119,1,"Quale tra questi ufficiali è stato decorato con la Medaglia d'Oro al Merito di Marina?","Ammiraglio Alati",["Comandante Avegno", "Comandante Todaro", "Ammiraglio Diciotti"]],
+[120,1,"Quale membro di casa Savoia inaugurò la Regia Accademia Navale?","Tommaso di Savoia",["Eugenio di Savoia", "Amedeo di Savoia-Aosta", "Luigi di Savoia-Abruzzi"]],
+[121,2,"Da chi era composto l'equipaggio del Grillo?","Pellegrini, Angelino, Corrias, Milani",["Corrias, Pellegrini, Magro, Rizzo", "Milani, Goiran, Ciano, Pellegrini", "Angelino, Aonzo, Ferrarini, Berardinelli"]],
+[122,1,"Quale unità navale britannica fu affondata a Suda nel 1941?","York",["Barham", "Valiant", "Eagle"]],
+[123,2,"Su quale unità si trovava il C.V. Enrico Baroni quando morì?","Espero",["Bagnolini", "Zeffiro", "Bande Nere"]],
+[124,2,"Chi era il comandante della nave Magenta durante il giro del mondo?","Vittorio Arminjon",["Emilio Faà di Bruno", "Costantino Morin", "Paolo Thaon di Revel"]],
+[125,2,"Durante lo scontro di Capo Teulada venne affondato l'incrociatore...","Nessun incrociatore",["Eugenio di Savoia", "Da Barbiano", "Colleoni"]],
+[126,1,"Chi progettò il Colombo ed il Vespucci?","Francesco Rotundi",["Attilio Bisio", "Benedetto Brin", "Vittorio Cuniberti"]],
+[127,2,"Quale incarico di rilievo rivestì l'ammiraglio Massimo Girosi?","Comandante della squadra navale",["Comandante del Dipartimento di Taranto", "Consigliere militare del Presidente della Repubblica", "Sottocapo di Stato Maggiore della Difesa"]],
+[128,1,"Quale unità fu la prima a portare il radar nel Mediterraneo?","Ajax",["Barham", "Warspite", "Queen Elizabeth"]],
+[129,2,"Quale tra questi valorosi faceva parte dei Fanti di Marina?","Sirianni",["Ferrarini", "Golametto", "Berardinelli"]],
+[130,2,"Quale ammiraglio comandò la spedizione contro Genova nel 1941?","Somerville",["Wippel", "Montgomery", "Cunningham"]],
+[131,2,"Quale tra questi valorosi era un sommergibilista?","Todaro",["Bafile", "Margottini", "Cappellini"]],
+[132,1,"In quale anno ci fu lo scontro di Capo Teulada?","1940",["1941", "1942", "1943"]],
+[133,2,"Come si chiama l'incrociatore inglese affondato nella battaglia di Mezzo Agosto?","Cairo",["Liverpool", "Gloucester", "Calypso"]],
+[134,2,"Quale tra questi personaggi è stato un incursore della Marina?","Giovanni Magro",["Francesco Mimbelli", "Virginio Fasan", "Adone Del Cima"]],
+[135,1,"Quale tra queste navi venne varata a seguito del Programma navale 1950?","Cacciatorpediniere Impetuoso",["Incrociatore Andrea Doria", "Corazzata Vittorio Veneto", "Cacciatorpediniere Artigliere"]],
+[136,2,"Chi tra questi ammiragli è stato CO.GE.CAP.?","Ferraro",["Paolo La Rosa", "Paolo Pagnottella", "Luciano Bucalossi"]],
+[137,1,"Come si chiamava il capo della Decima MAS della Repubblica di Salò?","Junio Valerio Borghese",["Ernesto Forza", "Paolo Aloisi", "Vittorio Moccagatta"]],
+[138,1,"Quale nave partecipò alla battaglia di Punta Stilo?","Corazzata Giulio Cesare",["Corazzata Roma", "Corazzata Benedetto Brin", "Corazzata Italia"]],
+[139,1,"Quale tra questi mezzi non era un sommergibile?","Sparviero",["Gondar", "Torricelli", "Iride"]],
+[140,2,"Quale tra questi eroi non partecipò alla Beffa di Buccari?",["Goiran", "Paolucci"],["Rizzo", "Ciano", "D'Annunzio"]],
+[141,1,"Quale tra queste navi apparteneva alla classe degli incrociatori pesanti?",["Trento", "Gorizia", "Bolzano", "Pola", "Zara"],["Littorio", "Vittorio Veneto", "Garibaldi", "Duca degli Abruzzi"]],
+[142,2,"Chi tra questi ammiragli non è stato Capo di Stato Maggiore della Difesa?",["Ammiraglio Sergio Biraghi", "Ammiraglio Angelo Mariani"],["Ammiraglio Mario Porta", "Ammiraglio Eugenio Henke", "Ammiraglio Guido Venturoni"]]
+];
+
+const BANK = RAW.map(r => ({n:r[0], lv:r[1], q:r[2], a:Array.isArray(r[3]) ? r[3] : [r[3]], w:r[4]}));
+const LV = {1:'Normale', 2:'Intermedio', 3:'Pro'};
+const KEY = 'marina-quiz-v1';
+const ANCHOR = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21M7.5 11.5h9M4 14c0 4 3.5 7 8 7s8-3 8-7M4 14l-1.2 2M20 14l1.2 2"/></svg>';
+
+const arr = x => Array.isArray(x) ? x : [];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+const def = () => ({seen:[], wrong:[], hist:[], levels:[1,2,3], instant:true});
+function load(){
+  try{
+    const r = localStorage.getItem(KEY);
+    if (r){
+      const o = JSON.parse(r), d = def();
+      const lv = arr(o.levels).filter(x => x === 1 || x === 2 || x === 3);
+      return {seen:arr(o.seen), wrong:arr(o.wrong), hist:arr(o.hist).slice(-200), levels:lv.length ? lv : d.levels, instant:o.instant !== false};
+    }
+  }catch(e){}
+  return def();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(P)); }catch(e){} }
+
+let P = load();
+let view = 'home', Z = null, resetArm = false;
+
+function makeItems(qs){
+  return qs.map(q => {
+    const right = q.a[Math.floor(Math.random() * q.a.length)];
+    const wrong = shuffle(q.w.filter(t => q.a.indexOf(t) < 0)).slice(0, 3);
+    return {q:q, right:right, pick:null, opts:shuffle([{t:right, ok:true}].concat(wrong.map(t => ({t:t, ok:false}))))};
+  });
+}
+function pickBlock(pool){
+  const seen = new Set(P.seen);
+  const fresh = shuffle(pool.filter(q => !seen.has(q.n)));
+  const old = shuffle(pool.filter(q => seen.has(q.n)));
+  return fresh.concat(old).slice(0, Math.min(20, pool.length));
+}
+function startBlock(qs, kind){
+  Z = {items:makeItems(shuffle(qs)), i:0, instant:P.instant, kind:kind, exitArm:false};
+  view = 'quiz';
+  render('q', true);
+}
+
+function band(right){
+  return '<header class="band"><div class="wrap band-in"><div class="brand">' + ANCHOR + '<span>Storia della Marina</span></div>' + right + '</div></header>';
+}
+
+function homeHTML(){
+  const pool = BANK.filter(q => P.levels.includes(q.lv));
+  const size = Math.min(20, pool.length);
+  const cnt = {1:0, 2:0, 3:0};
+  BANK.forEach(q => cnt[q.lv]++);
+  const seenN = BANK.filter(q => P.seen.includes(q.n)).length;
+  const wrongN = BANK.filter(q => P.wrong.includes(q.n)).length;
+  const h = P.hist;
+  let stats = '';
+  if (h.length){
+    const pc = h.map(x => x.s / x.t);
+    const avg = Math.round(100 * pc.reduce((a, b) => a + b, 0) / pc.length);
+    const best = Math.round(100 * Math.max.apply(null, pc));
+    stats = '<div class="stats"><div class="stat"><b>' + h.length + '</b><span>Blocchi</span></div><div class="stat"><b>' + avg + '%</b><span>Media</span></div><div class="stat"><b>' + best + '%</b><span>Migliore</span></div></div>';
+  }
+  const chips = [1,2,3].map(l =>
+    '<button class="chip" data-act="lv" data-v="' + l + '" aria-pressed="' + P.levels.includes(l) + '"><b>' + LV[l] + '</b><small>' + cnt[l] + ' domande</small></button>').join('');
+  const hint = P.instant
+    ? 'Dopo ogni risposta vedi subito se è giusta e qual è quella corretta.'
+    : 'Simulazione d\'esame: le risposte giuste compaiono solo a fine blocco.';
+  const anyProgress = P.seen.length || P.wrong.length || h.length;
+  return '<section class="hero"><div class="wrap hero-in"><p class="eyebrow">Test 29 · SGT</p><h1>Storia<br>della Marina</h1>' +
+    '<p class="lead">' + BANK.length + ' domande dai tuoi PDF a risposta multipla, estratte a blocchi di 20.</p></div><div class="ticks" aria-hidden="true"></div></section>' +
+    '<main class="wrap panel">' +
+    '<h2 class="label">Livelli</h2><div class="chips" role="group" aria-label="Livelli">' + chips + '</div>' +
+    '<h2 class="label">Correzione</h2><div class="seg" role="group" aria-label="Correzione">' +
+      '<button class="chip" data-act="mode" data-v="1" aria-pressed="' + P.instant + '"><b>Subito</b></button>' +
+      '<button class="chip" data-act="mode" data-v="0" aria-pressed="' + !P.instant + '"><b>A fine blocco</b></button></div>' +
+    '<p class="hint">' + hint + '</p>' +
+    '<button class="btn primary" data-act="start">Inizia blocco da ' + size + '</button>' +
+    (wrongN ? '<button class="btn ghost" data-act="errors">Ripassa gli errori <span class="pill">' + wrongN + '</span></button>' : '') +
+    '<section class="prog" aria-label="Progressi"><div class="prog-row"><span>Domande già viste</span><b>' + seenN + ' / ' + BANK.length + '</b></div>' +
+    '<div class="bar" role="img" aria-label="' + seenN + ' domande viste su ' + BANK.length + '"><i style="width:' + Math.round(100 * seenN / BANK.length) + '%"></i></div>' +
+    '<p class="hint">Ogni nuovo blocco pesca prima le domande che non hai ancora incontrato.</p>' + stats +
+    (anyProgress ? '<button class="link' + (resetArm ? ' arm' : '') + '" data-act="reset">' + (resetArm ? 'Tocca ancora per azzerare tutto' : 'Azzera progressi') + '</button>' : '') +
+    '</section></main>';
+}
+
+function stripHTML(items, cur, showAll){
+  return '<div class="strip" style="--n:' + items.length + '" aria-hidden="true">' + items.map((x, j) => {
+    let c = 'cell';
+    if (cur && j === Z.i) c += ' cur';
+    if (x.pick !== null){
+      if (showAll || Z.instant) c += x.opts[x.pick].ok ? ' ok' : ' bad';
+      else c += ' ans';
+    }
+    return '<i class="' + c + '"></i>';
+  }).join('') + '</div>';
+}
+
+function quizHTML(){
+  const n = Z.items.length, it = Z.items[Z.i];
+  const answered = it.pick !== null;
+  const reveal = Z.instant && answered;
+  const opts = it.opts.map((o, k) => {
+    let c = 'opt', mark = '';
+    if (reveal){
+      if (o.ok){ c += ' ok'; mark = 'Giusta'; }
+      else if (k === it.pick){ c += ' bad'; mark = 'La tua'; }
+      else c += ' dim';
+    } else if (it.pick === k) c += ' sel';
+    return '<button class="' + c + '" data-act="pick" data-k="' + k + '"' + (reveal ? ' aria-disabled="true"' : '') + ' aria-pressed="' + (it.pick === k) + '">' +
+      '<span class="key">' + 'ABCD'.charAt(k) + '</span><span class="txt">' + esc(o.t) + '</span><span class="mark">' + mark + '</span></button>';
+  }).join('');
+  let fb = '';
+  if (reveal){
+    const ok = it.opts[it.pick].ok;
+    fb = '<div class="fb ' + (ok ? 'ok' : 'bad') + '" role="status"><strong>' + (ok ? 'Corretto' : 'Sbagliato') + '</strong>' +
+      (ok ? '' : '<span>Risposta giusta: ' + esc(it.right) + '</span>') + '</div>';
+  }
+  const last = Z.i === n - 1;
+  const prev = (!Z.instant && Z.i > 0) ? '<button class="btn ghost" data-act="prev">Indietro</button>' : '';
+  return '<main class="wrap quiz"><div class="qmeta"><span class="count">Domanda <b>' + (Z.i + 1) + '</b>/' + n + '</span><span class="tag">' + (Z.kind === 'errors' ? 'Ripasso errori · ' : '') + LV[it.q.lv] + '</span></div>' +
+    stripHTML(Z.items, true, false) +
+    '<h2 class="q" id="qh" tabindex="-1">' + esc(it.q.q) + '</h2>' +
+    '<div class="opts">' + opts + '</div>' + fb +
+    '<div class="actions">' + prev + '<button class="btn primary" data-act="next"' + (answered ? '' : ' disabled') + '>' + (last ? 'Concludi blocco' : 'Avanti') + '</button></div></main>';
+}
+
+function resultHTML(){
+  const items = Z.items, n = items.length;
+  const score = items.filter(x => x.opts[x.pick].ok).length;
+  const pct = Math.round(100 * score / n);
+  const verdict = pct >= 90 ? 'Preparazione solida su questo blocco.' : pct >= 70 ? 'Buon livello. Ripassa gli errori qui sotto.' : pct >= 50 ? 'Serve ancora ripasso. Rifai gli errori e poi un nuovo blocco.' : 'Da rivedere. Parti dagli errori di questo blocco.';
+  const wrong = items.filter(x => !x.opts[x.pick].ok);
+  const revs = wrong.map(x => {
+    const chosen = x.opts[x.pick].t;
+    return '<li class="rev"><p class="rev-q">' + esc(x.q.q) + '</p>' +
+      '<p class="rev-a bad"><span>La tua risposta</span><b>' + esc(chosen) + '</b></p>' +
+      '<p class="rev-a ok"><span>Risposta giusta</span><b>' + esc(x.right) + '</b></p>' +
+      '<p class="rev-n">Livello ' + LV[x.q.lv] + '</p></li>';
+  }).join('');
+  return '<main class="wrap result"><section class="score"><p class="eyebrow" style="color:var(--brass)">' + (Z.kind === 'errors' ? 'Ripasso concluso' : 'Blocco concluso') + '</p>' +
+    '<p class="big">' + score + '<span>/' + n + '</span></p><p class="pct">' + pct + '% di risposte corrette</p><p class="verdict">' + verdict + '</p></section>' +
+    stripHTML(items, false, true) +
+    '<div class="btns"><button class="btn primary" data-act="again">Nuovo blocco</button>' +
+    (wrong.length ? '<button class="btn ghost" data-act="retry">Rifai i ' + wrong.length + ' errori</button>' : '') + '</div>' +
+    (wrong.length ? '<h2 class="rev-h">Da ripassare</h2><ol class="revs">' + revs + '</ol>' : '<p class="clean">Nessun errore in questo blocco.</p>') +
+    '</main>';
+}
+
+function render(focus, top){
+  const app = document.getElementById('app');
+  let html;
+  if (view === 'home') html = band('<span class="band-tag">99 domande</span>'.replace('99', BANK.length)) + homeHTML();
+  else if (view === 'quiz') html = band('<button class="band-btn' + (Z.exitArm ? ' arm' : '') + '" data-act="exit">' + (Z.exitArm ? 'Conferma uscita' : 'Esci') + '</button>') + quizHTML();
+  else html = band('<button class="band-btn" data-act="home">Home</button>') + resultHTML();
+  app.innerHTML = html;
+  if (top) window.scrollTo(0, 0);
+  if (focus){
+    const el = focus === 'q' ? app.querySelector('#qh') : focus === 'next' ? app.querySelector('[data-act="next"]') : app.querySelector('.opt.sel');
+    if (el) el.focus({preventScroll: focus === 'q'});
+  }
+}
+
+function pick(k){
+  const it = Z.items[Z.i];
+  if (!it || (Z.instant && it.pick !== null) || k < 0 || k >= it.opts.length) return;
+  it.pick = k;
+  Z.exitArm = false;
+  render(Z.instant ? 'next' : 'sel');
+}
+function finish(){
+  const items = Z.items;
+  const score = items.filter(x => x.opts[x.pick].ok).length;
+  items.forEach(x => {
+    const id = x.q.n, ok = x.opts[x.pick].ok;
+    if (!P.seen.includes(id)) P.seen.push(id);
+    P.wrong = P.wrong.filter(w => w !== id);
+    if (!ok) P.wrong.push(id);
+  });
+  P.hist.push({d:Date.now(), s:score, t:items.length});
+  P.hist = P.hist.slice(-200);
+  save();
+  view = 'result';
+  render(null, true);
+}
+function next(){
+  const it = Z && Z.items[Z.i];
+  if (!it || it.pick === null) return;
+  if (Z.i === Z.items.length - 1) finish();
+  else { Z.i++; render('q', true); }
+}
+
+function act(a, d){
+  switch (a){
+    case 'lv': {
+      const v = +d.v, s = new Set(P.levels);
+      if (s.has(v)){ if (s.size > 1) s.delete(v); } else s.add(v);
+      P.levels = Array.from(s).sort(); save(); render(); break;
+    }
+    case 'mode': P.instant = d.v === '1'; save(); render(); break;
+    case 'start': startBlock(pickBlock(BANK.filter(q => P.levels.includes(q.lv))), 'normal'); break;
+    case 'errors': {
+      const pool = BANK.filter(q => P.wrong.includes(q.n));
+      if (pool.length) startBlock(pickBlock(pool), 'errors');
+      break;
+    }
+    case 'pick': pick(+d.k); break;
+    case 'next': next(); break;
+    case 'prev': if (Z && Z.i > 0){ Z.i--; render('q', true); } break;
+    case 'exit':
+      if (Z.exitArm){ view = 'home'; Z = null; render(null, true); }
+      else { Z.exitArm = true; render(); }
+      break;
+    case 'home': view = 'home'; Z = null; render(null, true); break;
+    case 'again': startBlock(pickBlock(BANK.filter(q => P.levels.includes(q.lv))), 'normal'); break;
+    case 'retry': {
+      const qs = Z.items.filter(x => !x.opts[x.pick].ok).map(x => x.q);
+      if (qs.length) startBlock(qs, 'errors');
+      break;
+    }
+    case 'reset':
+      if (resetArm){ const keep = {levels:P.levels, instant:P.instant}; P = def(); P.levels = keep.levels; P.instant = keep.instant; save(); resetArm = false; }
+      else { resetArm = true; setTimeout(() => { if (resetArm){ resetArm = false; if (view === 'home') render(); } }, 4000); }
+      render();
+      break;
+  }
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!b || b.hasAttribute('disabled')) return;
+  act(b.getAttribute('data-act'), {v:b.getAttribute('data-v'), k:b.getAttribute('data-k')});
+});
+document.addEventListener('keydown', e => {
+  if (view !== 'quiz' || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  let i = 'abcd'.indexOf(k);
+  if (k.length !== 1) i = -1;
+  if (i < 0) i = '1234'.indexOf(k);
+  if (k.length === 1 && i >= 0){ e.preventDefault(); pick(i); return; }
+  if ((k === 'enter' || k === 'arrowright') && !(e.target.closest && e.target.closest('button'))){ e.preventDefault(); next(); }
+});
+
+render();
+})();
+</script>
+
+</body>
+</html>
